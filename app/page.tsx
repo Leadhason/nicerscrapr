@@ -1,5 +1,8 @@
 "use client"
 
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+
 import { useState } from "react"
 import { UrlInputForm } from "@/components/UrlInput"
 import { ScrapedDataDisplay } from "@/components/ScrapedData"
@@ -80,8 +83,12 @@ The data is presented in a hierarchical structure with clear section headings, m
 
   return (
     <main className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-center">AI Webscraper</h1>
-
+      <div className="w-full flex mx-2 justify-between mb-10">
+        <h1 className="text-3xl font-bold mb-8">NiceScraper</h1>
+       <Link href="https://github.com/Leadhason"> 
+        <Button className="border border-black rounded-full text-black bg-transparent hover:text-white hover:bg-black">Github</Button>
+       </Link>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Panel - URL Input and Scraped Data */}
         <div className="space-y-6">
