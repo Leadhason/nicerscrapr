@@ -1,72 +1,106 @@
-'use client'
+"use client"
 
-import React, { useState } from 'react';
-import { Form } from '../components/Form';
-import { ScrapeInterface } from '../components/ScrapeInterface'
-import { AiInterface } from '../components/AiInterface'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from "react"
+import { UrlInputForm } from "@/components/UrlInput"
+import { ScrapedDataDisplay } from "@/components/ScrapedData"
+import { AiQueryForm } from "@/components/QueryForm"
+import { AiResultsDisplay } from "@/components/QueryResults"
+import { EmptyState } from "@/components/EmptyState"
 
-export default function Home () {
-  const [scrapedData, setScrapedData] = useState<string | null>(null)
-  const [aiResponse, setAiResponse] = useState<string | null>(null)
-  const [isScrapingLoading, setIsScrapingLoading] = useState(false)
-  const [isQueryLoading, setIsQueryLoading] = useState(false)
-
+export default function WebScraperPage() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [isScraped, setIsScraped] = useState(false)
+  const [scrapedData, setScrapedData] = useState("")
+  const [queryResult, setQueryResult] = useState("")
+  const [isQuerying, setIsQuerying] = useState(false)
 
   const handleScrape = async (url: string) => {
-    setIsScrapingLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setScrapedData(`Simulated scraped data from ${url}`)
-    setIsScrapingLoading(false)
+    setIsLoading(true)
+    setScrapedData("")
+    setQueryResult("")
+
+    try {
+      const response = await fetch("/api/scrape", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setScrapedData(result.data)
+        setIsScraped(true)
+      } else {
+        setScrapedData(`# Error Scraping Website\n\n**Error**: ${result.error}\n\nPlease check the URL and try again.`)
+        setIsScraped(true)
+      }
+    } catch (error) {
+      console.error("Scraping failed:", error)
+      setScrapedData(
+        `# Error Scraping Website\n\n**Error**: Failed to connect to scraping service\n\nPlease check your internet connection and try again.`,
+      )
+      setIsScraped(true)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleQuery = async (query: string) => {
-    setIsQueryLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setAiResponse(`AI response to "${query}" based on the scraped data.`)
-    setIsQueryLoading(false)
+    setIsQuerying(true)
+
+    // Simulate AI processing
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        setQueryResult(`# Analysis of Scraped Content
+
+Based on your query: "${query}"
+
+## Summary
+The scraped webpage appears to be a product or service page related to AI technology. It has a structured layout with 5 main sections.
+
+## Key Information Extracted
+- **Title**: AI Webscraper Demo Page
+- **Main Sections**: Introduction, Features, Specifications, Testimonials, and Pricing
+- **Content Structure**: Well-organized with headings and numbered lists
+- **Technical Details**: Contains metadata and approximately 150 HTML elements
+
+## Recommendations
+Based on the content, this appears to be a demonstration or product page. The pricing information in section 5 would be particularly relevant for potential customers.
+
+## Data Format
+The data is presented in a hierarchical structure with clear section headings, making it suitable for further processing or analysis.`)
+        setIsQuerying(false)
+        resolve()
+      }, 2000)
+    })
   }
 
   return (
-    <div className="flex flex-col mx-auto min-h-screen p-4 bg-gradient-to-br from-amber-100 via-orange-0 to-yellow-50">
-      <header className="flex w-full justify-between px-2">
-        <h1 className="text-3xl font-bold text-center text-gray-900">
-            SCRAPR
-        </h1>
-        <button className="flex border w-[100px] h-[40px] items-center justify-center border-black p-3 text-white bg-black hover:text-black hover:bg-transparent rounded-full">GitHub</button>
-      </header>
+    <main className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8 text-center">AI Webscraper</h1>
 
-      <motion.div
-        className="flex-grow flex flex-col justify-center"
-        animate={{ y: scrapedData ? -40 : 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className={`flex flex-col items-center justify-center space-y-8 transition-all duration-500 ${scrapedData ? 'mt-10' : '-mt-20'}`}>
-          <div className="space-y-3">
-            <h2 className="text-5xl font-bold text-center text-gray-900">
-              A Webscraper with <span className="bg-gradient-to-r from-amber-500 via-orange-600 to-yellow-500  bg-clip-text text-transparent">Superpowers</span>
-            </h2>
-            <p className="text-center text-lg font-extralight text-gray-400">
-              Simplify data collection with Scrapr, an intelligent web scraper <br/> that empowers you to extract and analyze website data effortlessly with AI precision.
-            </p>
-          </div>
-          <Form onScrape={handleScrape} isLoading={isScrapingLoading}/>
-          <AnimatePresence>
-            {scrapedData && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <ScrapeInterface data={scrapedData} />
-                <AiInterface onQuery={handleQuery} response={aiResponse} isQueryLoading={isQueryLoading} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Panel - URL Input and Scraped Data */}
+        <div className="space-y-6">
+          <UrlInputForm onScrape={handleScrape} isLoading={isLoading} />
+          {isScraped && <ScrapedDataDisplay data={scrapedData} />}
         </div>
-      </motion.div>
-    </div>
-  );
-}
 
+        {/* Right Panel - AI Query and Results */}
+        <div className="space-y-6">
+          {isScraped ? (
+            <>
+              <AiQueryForm onQuery={handleQuery} isQuerying={isQuerying} />
+              {queryResult && <AiResultsDisplay result={queryResult} />}
+            </>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
+      </div>
+    </main>
+  )
+}
