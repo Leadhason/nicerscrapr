@@ -33,7 +33,7 @@ export function AiQueryForm({ onQuery, isQuerying }: AiQueryFormProps) {
           placeholder="Ask a question about the scraped content..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-h-[100px]"
+          className="min-h-[50px]"
           required
         />
         <Button type="submit" className="w-full" disabled={isQuerying}>

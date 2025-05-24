@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     // Launch Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
-      
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -30,6 +29,7 @@ export async function POST(request: NextRequest) {
         "--single-process",
         "--disable-gpu",
       ],
+      executablePath: process.env.CHROME_EXECUTABLE_FILE || puppeteer.executablePath(),
     })
 
     const page = await browser.newPage()

@@ -82,13 +82,14 @@ The data is presented in a hierarchical structure with clear section headings, m
   }
 
   return (
-    <main className="container mx-auto py-8 px-4">
+    <main className="flex flex-col items-center justify-center p-5 mx-4">
       <div className="w-full flex mx-2 justify-between mb-10">
         <h1 className="text-3xl font-bold mb-8">NiceScraper</h1>
        <Link href="https://github.com/Leadhason"> 
         <Button className="border border-black rounded-full text-black bg-transparent hover:text-white hover:bg-black">Github</Button>
        </Link>
       </div>
+      {isScraped ? (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Panel - URL Input and Scraped Data */}
         <div className="space-y-6">
@@ -98,16 +99,21 @@ The data is presented in a hierarchical structure with clear section headings, m
 
         {/* Right Panel - AI Query and Results */}
         <div className="space-y-6">
-          {isScraped ? (
             <>
               <AiQueryForm onQuery={handleQuery} isQuerying={isQuerying} />
               {queryResult && <AiResultsDisplay result={queryResult} />}
             </>
-          ) : (
-            <EmptyState />
-          )}
         </div>
       </div>
+      ) : (
+        <div className="flex-col items-center justify-center space-y-6 px-10"> 
+          <EmptyState />
+          <div className="space-y-6">
+            <UrlInputForm onScrape={handleScrape} isLoading={isLoading} />
+            {isScraped && <ScrapedDataDisplay data={scrapedData} />}
+          </div>
+        </div> 
+      )}
     </main>
   )
 }
